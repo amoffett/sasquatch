@@ -54,23 +54,14 @@ def convolve_blocks(block1, block2, min_synteny = 1):
 
     return convolution
 
-### TO BE FIXED...
 def block_overlap(block1, block2, min_synteny = 1):
-    convolution_forward = convolve_blocks(block1,block2,min_synteny=min_synteny)
-    convolution_backward = convolve_blocks(block1,block2[::-1],min_synteny=min_synteny)
-    
-    if (len(convolution_forward) == 1) and (len(convolution_backward) == 1):
-        convolution = convolution_forward
-    else:
-        convolution = convolution_forward + convolution_backward
-        
-    #convolution = convolution_forward + convolution_backward
+    convolution = convolve_blocks(block1,block2,min_synteny=min_synteny)
 
     family = [set(c) for c in convolution]
     out_family = [set(c) for c in convolution]
-    for set1 in family:
-        for set2 in family:
-            if set1 != set2:
+    for n1, set1 in enumerate(family):
+        for n2, set2 in enumerate(family):
+            if (n1 != n2) and (set1 != set2):
                 if len(set1.intersection(set2)) > 0:
                     N1 = len(set1)
                     N2 = len(set2)
@@ -79,7 +70,8 @@ def block_overlap(block1, block2, min_synteny = 1):
                             out_family.remove(set2)
                         else:
                             out_family.remove(set1)
-
+            elif (n1 < n2) and (set1 == set2):
+                out_family.remove(set2)
     return out_family
 
 def calculate_simulation_sb_distribution(GA, GB, min_synteny = 1):
