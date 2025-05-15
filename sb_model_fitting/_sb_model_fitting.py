@@ -1,16 +1,16 @@
 import numpy as np
 from scipy import linalg, stats
 
-def KL_divergence(N, b_hat, b, min_synteny = 3):
+def KL_divergence(b_hat, b, min_synteny = 3):
     b_hat = b_hat[(min_synteny-1):]
     b = b[(min_synteny-1):]
     p_hat = b_hat / np.sum(b_hat)
     p = b / np.sum(b)
-    #D = np.nan_to_num(p_hat * np.log(p_hat / p)).sum()
-    D = - np.nan_to_num(p_hat * np.log(p)).sum() - np.nan_to_num((1-p_hat) * np.log(1-p)).sum()
+    D = np.nan_to_num(p_hat * np.log(p_hat / p)).sum()
+    #D = - np.nan_to_num(p_hat * np.log(p)).sum() - np.nan_to_num((1-p_hat) * np.log(1-p)).sum()
     return D
 
-def dKL_divergence(N, b_hat, b, db_dkappa, db_dgamma, db_dtheta, min_synteny = 3, reduced = False):
+def dKL_divergence(b_hat, b, db_dkappa, db_dgamma, db_dtheta, min_synteny = 3, reduced = False):
     b_hat = b_hat[(min_synteny-1):]
     b = b[(min_synteny-1):]
     p_hat = b_hat / np.sum(b_hat)
@@ -18,13 +18,16 @@ def dKL_divergence(N, b_hat, b, db_dkappa, db_dgamma, db_dtheta, min_synteny = 3
     p = b / z
 
     db_dkappa = db_dkappa[(min_synteny-1):]
-    dD_dkappa = - np.nan_to_num(((p_hat / p) - (1 - p_hat) / (1 - p)) * (db_dkappa - p * np.sum(db_dkappa)) / z).sum()
+    #dD_dkappa = - np.nan_to_num(((p_hat / p) - (1 - p_hat) / (1 - p)) * (db_dkappa - p * np.sum(db_dkappa)) / z).sum()
+    dD_dkappa = - np.nan_to_num((p_hat / p) * (db_dkappa - p * np.sum(db_dkappa)) / z).sum()
     if reduced == False:
         db_dgamma = db_dgamma[(min_synteny-1):]
-        dD_dgamma = - np.nan_to_num(((p_hat / p) - (1 - p_hat) / (1 - p)) * (db_dgamma - p * np.sum(db_dgamma)) / z).sum()
+        #dD_dgamma = - np.nan_to_num(((p_hat / p) - (1 - p_hat) / (1 - p)) * (db_dgamma - p * np.sum(db_dgamma)) / z).sum()
+        dD_dgamma = - np.nan_to_num((p_hat / p) * (db_dgamma - p * np.sum(db_dgamma)) / z).sum() 
 
         db_dtheta = db_dtheta[(min_synteny-1):]
-        dD_dtheta = - np.nan_to_num(((p_hat / p) - (1 - p_hat) / (1 - p)) * (db_dtheta - p * np.sum(db_dtheta)) / z).sum()
+        #dD_dtheta = - np.nan_to_num(((p_hat / p) - (1 - p_hat) / (1 - p)) * (db_dtheta - p * np.sum(db_dtheta)) / z).sum()
+        dD_dtheta = - np.nan_to_num((p_hat / p) * (db_dtheta - p * np.sum(db_dtheta)) / z).sum()
     else:
         dD_dgamma = 0
         dD_dtheta = 0
